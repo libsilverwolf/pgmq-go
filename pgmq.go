@@ -117,6 +117,19 @@ func SendWithDelay(ctx context.Context, db DB, queue string, msg json.RawMessage
 	return msgID, nil
 }
 
+// SendTopic
+func SendTopic(ctx context.Context, db DB, queue string, msg json.RawMessage) (int64, error) {
+	var msgID int64
+	err := db.
+		QueryRow(ctx, "SELECT * FROM pgmq.send_topic($1, $2)", queue, msg).
+		Scan(&msgID)
+	if err != nil {
+		return 0, wrapPostgresError(err)
+	}
+
+	return msgID, nil
+}
+
 // SendWithDelayTimestamp sends a single message to a queue with a delay. The
 // delay is specified as a timestamp. The message id, unique to the queue, is
 // returned. Only supported in pgmq-pg17 and above.
